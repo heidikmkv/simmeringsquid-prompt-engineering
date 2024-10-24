@@ -1,18 +1,11 @@
 import streamlit as st
 from openai import OpenAI
+import working_prompts
+from helpers import *
+
 
 st.title("Project 🍲🦑: experiment with ChatGPT prompts")
 
-def chat_with_gpt(conversation):
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo",  # Adjust model as necessary
-        messages=conversation
-    )
-    return response.choices[0].message.content
-
-# Ask user for their OpenAI API key via `st.text_input`.
-# Alternatively, you can store the API key in `./.streamlit/secrets.toml` and access it
-# via `st.secrets`, see https://docs.streamlit.io/develop/concepts/connections/secrets-management
 openai_api_key = st.text_input("OpenAI API Key", type="password")
 if not openai_api_key:
     st.info("Please add your OpenAI API key to continue.", icon="🗝️")
@@ -20,11 +13,38 @@ else:
     # Create an OpenAI client.
     client = OpenAI(api_key=openai_api_key)
 
-    system_prompt_text = st.text_area('Enter system prompt')
-    user_prompt_text = st.text_input('Enter user prompt')
+    # Input for system prompt
+    system_prompt = st.text_area("System Prompt", value="You are a helpful assistant.")
+    user_prompt = st.text_area("User Prompt", placeholder="Enter your question or command here...")
 
-    conversation = [{"role": "system", "content": system_prompt_text},
-                    {"role": "user", "content": user_prompt_text}]
+    # Container to hold dynamically added example pairs
+    example_container = st.container()
+    examples = []
 
-    if st.button('Send to ChatGPT'):
-        st.write(chat_with_gpt(conversation))
+    # Define function to add a new example pair (user-system)
+    def add_example():
+        with example_container:
+            user_input = st.text_input(f"Example User Prompt", key=f"user_{len(examples)}")
+            system_response = st.text_input(f"Example System Response", key=f"system_{len(examples)}")
+            if user_input and system_response:
+                examples.append({"user": user_input, "system": system_response})
+
+    # Add a button to allow users to add examples
+    if st.button("Add Example"):
+        add_example()
+
+    # Display each existing example as input fields
+    for i, example in enumerate(examples):
+        st.text_input(f"Example {i+1} User", value=example['user'], key=f"example_user_{i}")
+        st.text_input(f"Example {i+1} System", value=example['system'], key=f"example_system_{i}")
+
+    # Submit button
+    if st.button("Submit"):
+        if system_prompt and user_prompt:
+            # Get the response from ChatGPT
+            response = get_chatgpt_response(system_prompt, user_prompt, examples,client)
+            # Display the response
+            st.write("### ChatGPT Response")
+            st.write(response)
+        else:
+            st.error("Please provide both a system prompt and a user prompt.")
