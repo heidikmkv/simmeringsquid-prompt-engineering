@@ -1,7 +1,7 @@
 import streamlit as st
 from openai import OpenAI
 
-st.title("Project 🍲🦑: experiment with ChatGPT prompts for multilingual recipe generation")
+st.title("Project 🍲🦑: experiment with ChatGPT prompts")
 
 def chat_with_gpt(conversation):
     response = client.chat.completions.create(
