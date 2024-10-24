@@ -27,23 +27,21 @@ else:
     # Create an OpenAI client.
     client = OpenAI(api_key=openai_api_key)
 
-    system_prompt = st.text_area('Enter system prompt',value=working_prompts.text_systemprompt_recipe)
+    system_prompt = st.text_area('Enter a system prompt, which sets the overall chatbot behavior:',value=working_prompts.text_systemprompt_recipe)
+    # Numeric input for the number of examples
+    num_examples = st.number_input("Enter the number of examples you want to provide to ChatGPT:", min_value=0, value=len(st.session_state.examples), step=1)
 
-    # Container to hold dynamically added example pairs
-    example_container = st.container()
-
-    # Function to add a new example pair
-    def add_example():
-        st.session_state.examples.append({"user": "", "system": ""})
-
-    # Add a button to allow users to add examples
-    if st.button("Add Example"):
-        add_example()
+    # Adjust the number of examples in the session state if necessary
+    if len(st.session_state.examples) < num_examples:
+        for _ in range(num_examples - len(st.session_state.examples)):
+            st.session_state.examples.append({"user": "", "system": ""})
+    elif len(st.session_state.examples) > num_examples:
+        st.session_state.examples = st.session_state.examples[:num_examples]
 
     # Display each existing example pair for input
     for i, example in enumerate(st.session_state.examples):
-        user_input = st.text_input(f"Example User Prompt", key=f"user_{i}", value=example['user'])
-        system_response = st.text_area(f"Example System Response", key=f"system_{i}", value=example['system'])
+        user_input = st.text_input(f"Example {i+1} User Prompt", key=f"user_{i}", value=example['user'])
+        system_response = st.text_area(f"Example {i+1} System Response", key=f"system_{i}", value=example['system'])
         # Update the examples in session state as the user types
         st.session_state.examples[i]['user'] = user_input
         st.session_state.examples[i]['system'] = system_response
