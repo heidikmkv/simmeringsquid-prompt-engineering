@@ -24,3 +24,18 @@ def get_chatgpt_response(client,system_prompt, user_prompt, examples=None):
     )
     
     return response.choices[0].message.content
+
+
+def construct_conversation(system_prompt, user_prompt, examples):
+    # Initialize the conversation with the system prompt
+    conversation = [{"role": "system", "content": system_prompt}]
+    
+    # Add example user-assistant pairs if any
+    for example in examples:
+        conversation.append({"role": "user", "content": example['user']})
+        conversation.append({"role": "assistant", "content": example['system']})
+    
+    # Add the final user prompt at the end of the conversation
+    conversation.append({"role": "user", "content": user_prompt})
+    
+    return conversation
