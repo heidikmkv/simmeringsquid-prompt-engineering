@@ -44,7 +44,7 @@ else:
     # Display each existing example pair for input
     for i, example in enumerate(st.session_state.examples):
         user_input = st.text_input(f"Example {i+1} User Prompt", key=f"user_{i}", value=example['user'])
-        system_response = st.text_input(f"Example {i+1} System Response", key=f"system_{i}", value=example['system'])
+        system_response = st.text_area(f"Example {i+1} System Response", key=f"system_{i}", value=example['system'])
         # Update the examples in session state as the user types
         st.session_state.examples[i]['user'] = user_input
         st.session_state.examples[i]['system'] = system_response
