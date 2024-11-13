@@ -29,40 +29,28 @@ text_systemprompt_remix = "You are an assistant trained to change recipes to a n
 
 
 # Function to call OpenAI's ChatGPT model with system/user prompts and optional examples
-def get_chatgpt_response(client,system_prompt, user_prompt, examples=None):
-    # Prepare the conversation with system and user inputs
-    messages = [{"role": "system", "content": system_prompt}]
-    
-    # Add example pairs if provided
-    if examples:
-        for example in examples:
-            messages.append({"role": "user", "content": example['user']})
-            messages.append({"role": "assistant", "content": example['system']})
-    
-    # Add the main user prompt
-    messages.append({"role": "user", "content": user_prompt})
-    
+def get_chatgpt_response(client,conversation):
     # Call the OpenAI API with the constructed conversation
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",  # Adjust model as necessary
         messages=conversation
     )
-    
     return response.choices[0].message.content
 
 
-def construct_conversation(system_prompt, user_prompt, examples):
+def construct_conversation(system_prompt, user_prompt, examples=False):
     # Initialize the conversation with the system prompt
     conversation = [{"role": "system", "content": system_prompt}]
     
     # Add example user-assistant pairs if any
-    for example in examples:
-        conversation.append({"role": "user", "content": example['user']})
-        conversation.append({"role": "assistant", "content": example['system']})
+    if examples:
+        for example in examples:
+            conversation.append({"role": "user", "content": example['user']})
+            conversation.append({"role": "assistant", "content": example['system']})
     
     # Add the final user prompt at the end of the conversation
     conversation.append({"role": "user", "content": user_prompt})
-    
+    print(conversation)
     return conversation
 
 
@@ -75,5 +63,5 @@ def remix_recipe(client,text_prompt_remix,text_recipe):
                               {"role": "user", "content": text_example_remix_prompt},
                               {"role": "assistant","content":text_example_remix_reply},
                               {"role": "user", "content": prompt_text}]
-        text_remix = chat_with_gpt(remix_conversation)
+        text_remix = get_chatgpt_response(client,remix_conversation)
     return text_remix

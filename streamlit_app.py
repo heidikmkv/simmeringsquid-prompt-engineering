@@ -2,7 +2,7 @@ import streamlit as st
 from openai import OpenAI
 
 import working_prompts
-from helpers import construct_conversation, get_chatgpt_response
+from helpers import construct_conversation, get_chatgpt_response, remix_recipe
 
 st.title("Project 🍲🦑: experiment with ChatGPT prompts")
 
